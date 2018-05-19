@@ -26,4 +26,17 @@ object Main extends App {
   /** Форматируем результат командой 
     * "% <число символов до запятой> . < число символов после запятой>" format(x) */
   print("%.3f" format(getLen(Moscow, Rostov_on_Don)))
+  import scala.collection.Graph // or scalax.collection.mutable.Graph
+  val G = Graph(
+  "Entry" -> "A",
+  "A" -> "B",
+  "B" -> "C",
+  "B" -> "D",
+  "D" -> "F",
+  "F" -> "E",
+  "E" -> "F",
+  "E" -> "C",
+  "C" -> "A",
+  "C" -> "Exit")
+G.dotExport to Console.out
 }    
