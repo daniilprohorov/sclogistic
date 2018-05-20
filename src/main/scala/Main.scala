@@ -2,9 +2,15 @@ object Main extends App {
   def main(): Unit =  {
 
   }
-  /** Константы */
-  val Moscow = List(55.753960, 37.620393)
-  val Rostov_on_Don = List(47.2313500, 39.7232800)
+  /** Наверное это все должно хранится в хеш таблице */
+  import scala.collection.mutable.HashMap
+  import scala.collection.Set
+  val City : HashMap[String, List[Double]] = HashMap(
+    ("Moscow", List(55.753960, 37.620393)), 
+    ("Rostov-on-Don", List(47.2313500, 39.7232800)),
+    ("Sankt-Petersburg", List(59.9386300, 30.3141300)))
+
+  /** TODO Написать функцию, создающую HashMap из файла */
   
   /** Вычисление расстояний по координатам */
   def getLen(A : List[Double], B : List[Double]): Double = {
@@ -25,18 +31,37 @@ object Main extends App {
   }
   /** Форматируем результат командой 
     * "% <число символов до запятой> . < число символов после запятой>" format(x) */
-  print("%.3f" format(getLen(Moscow, Rostov_on_Don)))
-  import scala.collection.Graph // or scalax.collection.mutable.Graph
-  val G = Graph(
-  "Entry" -> "A",
-  "A" -> "B",
-  "B" -> "C",
-  "B" -> "D",
-  "D" -> "F",
-  "F" -> "E",
-  "E" -> "F",
-  "E" -> "C",
-  "C" -> "A",
-  "C" -> "Exit")
-G.dotExport to Console.out
+  println("%.3f" format(getLen(City("Moscow"), City("Rostov-on-Don"))))
+  /** Библиотеки Graph  */
+  import scalax.collection.Graph
+  import scalax.collection.GraphPredef._
+  import scalax.collection.GraphEdge._
+  /** Библиотека подключения графа с весами */
+  //import scalax.collection.edge
+  import scala.collection.Traversable
+  import scalax.collection.edge.WDiEdge
+  import scalax.collection.edge.Implicits._
+  def initS(){
+    /** Список ключей(по факту список городов) */
+    val keyCity = City.keySet.toList
+    /** цикл по элементам keyCity */
+    /** yield - означает, что на выходе получим список */
+    val edges = for(city <- keyCity) yield keyCity
+    /** Записываем все города, кроме city */ 
+      .filter( _ != city)
+    /** Создаем в каждом списке city~ элемент списка */
+      .map(x => city ~ x % getLen(City(city), City(x)))
+    /** Раскрываем списки в один */
+    val flatEdges = edges.flatten
+    print(flatEdges)
+    val g = Graph(1~2 % 4, 2~3 % 2, 1~>3 % 5, 1~5  % 3,
+              3~5 % 2, 3~4 % 1, 4~>4 % 1, 4~>5 % 0)
+    val G = Graph.from(keyCity, flatEdges)
+      println(G.nodes mkString " ")
+      println(G.edges mkString " ")
+    /** Считаем суммарное расстояние  */
+    print(G.totalWeight)
+      
+  } 
+  initS()
 }    
