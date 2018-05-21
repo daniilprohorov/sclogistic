@@ -44,6 +44,7 @@ object Main extends App {
   def initS(){
     /** Список ключей(по факту список городов) */
     val keyCity = City.keySet.toList
+    println("keyCity : " + keyCity + "\n")
     /** цикл по элементам keyCity */
     /** yield - означает, что на выходе получим список */
     val edges = for(city <- keyCity) yield keyCity
@@ -51,17 +52,24 @@ object Main extends App {
       .filter( _ != city)
     /** Создаем в каждом списке city~ элемент списка */
       .map(x => city ~ x % getLen(City(city), City(x)))
+    println("edges : " + edges + "\n")
+
     /** Раскрываем списки в один */
     val flatEdges = edges.flatten
-    print(flatEdges)
-    val g = Graph(1~2 % 4, 2~3 % 2, 1~>3 % 5, 1~5  % 3,
-              3~5 % 2, 3~4 % 1, 4~>4 % 1, 4~>5 % 0)
+    println("flatEdges : " + flatEdges + "\n")
     val G = Graph.from(keyCity, flatEdges)
+    /** Выводим города */
       println(G.nodes mkString " ")
+    /** Выводим пути между городами */
       println(G.edges mkString " ")
     /** Считаем суммарное расстояние  */
-    print(G.totalWeight)
-      
+    println(G.totalWeight + "\n")
+    def n(outer: String): G.NodeT = G get outer
+    val MR = n("Moscow") pathTo n("Rostov-on-Don")
+    println(MR)
+    val l = MR.get
+    println(l)
+    print(l.weight)  
   } 
   initS()
 }    
