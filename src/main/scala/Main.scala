@@ -72,7 +72,4 @@ object Main extends App {
     print(l.weight)  
   } 
   initS()
-}    
-
-
-//попробуем нагадить
+} 
