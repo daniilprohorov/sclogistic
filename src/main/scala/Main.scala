@@ -73,3 +73,6 @@ object Main extends App {
   } 
   initS()
 }    
+
+
+//попробуем нагадить
