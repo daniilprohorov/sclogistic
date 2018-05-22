@@ -39,37 +39,59 @@ object Main extends App {
   /** Библиотека подключения графа с весами */
   //import scalax.collection.edge
   import scala.collection.Traversable
-  import scalax.collection.edge.WDiEdge
+  import scalax.collection.edge.WUnDiEdge
   import scalax.collection.edge.Implicits._
-  def initS(){
+
+  /** Функция создания графа */
+  def initGraph(Table : HashMap[String, List[Double]] = City, 
+            /** Table - таблица типа hashMap 
+              * c ключом String, элементом типа List[Double]
+              * default = City*/
+                getW : ((List[Double], List[Double]) => Double) = getLen
+            /** getW - функция, принимающая на вход списки List[Double]
+              * возвращающая вес типа Double
+              * default = getLen */
+                ): Graph[String, WUnDiEdge] = {
+            /** Функция возвращает граф c узлами типа String
+              * и ребрами, типа Weight UnDirect Edge */ 
+
     /** Список ключей(по факту список городов) */
-    val keyCity = City.keySet.toList
-    println("keyCity : " + keyCity + "\n")
-    /** цикл по элементам keyCity */
+    val keyTable = Table.keySet.toList
+    /** цикл по элементам keyTable */
     /** yield - означает, что на выходе получим список */
-    val edges = for(city <- keyCity) yield keyCity
-    /** Записываем все города, кроме city */ 
-      .filter( _ != city)
-    /** Создаем в каждом списке city~ элемент списка */
-      .map(x => city ~ x % getLen(City(city), City(x)))
-    println("edges : " + edges + "\n")
+    val edges = for(elem <- keyTable) yield keyTable
+    /** Записываем все элементы, кроме elem */ 
+      .filter( _ != elem)
+    /** Создаем в каждом списке elem ~ элемент списка */
+      .map(x => elem ~ x % getW(Table(elem), Table(x)))
 
     /** Раскрываем списки в один */
     val flatEdges = edges.flatten
-    println("flatEdges : " + flatEdges + "\n")
-    val G = Graph.from(keyCity, flatEdges)
-    /** Выводим города */
-      println(G.nodes mkString " ")
-    /** Выводим пути между городами */
-      println(G.edges mkString " ")
-    /** Считаем суммарное расстояние  */
-    println(G.totalWeight + "\n")
-    def n(outer: String): G.NodeT = G get outer
-    val MR = n("Moscow") pathTo n("Rostov-on-Don")
-    println(MR)
-    val l = MR.get
-    println(l)
-    print(l.weight)  
+    /** Создаем граф из элементов таблицы с
+      * вычесленными весами */
+    val G = Graph.from(keyTable, flatEdges)
+    G
   } 
-  initS()
+  
+  /** Функция вывода графа в удобночитаемом виде */
+  def printGraphText(G : Graph[String, WUnDiEdge]) {
+    /** функция, возвращающая узел графа */
+    def n(outer: String): G.NodeT = G get outer
+    /** записываем в edges все ребра */
+    val edges = G.edges.toList
+    /** Cчетчик */
+    var count = 0
+    for(edge <- edges){
+      /** Берем любое ребро из узла 1 в узел 2 */
+      val temp_edge = n(edge._1) pathTo n(edge._2)
+      /** Получаем вес этого ребра */
+      val w_edge = temp_edge get 
+      val weight = w_edge.weight
+      count += 1
+      val str = 
+      print(f"$count. ${edge._1}%-20s ~ ${edge._2}%-20s Weight = $weight \n")
+    }
+  }
+  
+  printGraphText(initGraph())
 } 
