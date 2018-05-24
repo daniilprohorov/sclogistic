@@ -1,3 +1,4 @@
+
 object Main extends App {
   def main(): Unit =  {
 
@@ -6,9 +7,19 @@ object Main extends App {
   import scala.collection.mutable.HashMap
   import scala.collection.Set
   import scala.io.Source
+  import demo._
 
   val city_filename = "city_coordinates.txt"
 
+  /** Подключение базы данных */
+  import scalikejdbc.config.DBs
+
+  DBs.setup('city_db)
+  val cityDao = new CityDAO
+
+  cityDao.readAll().foreach(println)
+  DBs.close('city_db) //если что это закрытие базы
+  /** */
   val relations_filename = "relations.txt"
   def fileToHashMapD(filename : String) : HashMap[String, List[Double]] = {
     var hashMapOf = new HashMap[String, List[Double]]
