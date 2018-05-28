@@ -3,7 +3,7 @@ package demo
 import scalikejdbc._
 
 class CityDAO extends DbConnected {
-  def create(cityToSave: City): Long = {
+  /*def create(cityToSave: City): Long = {
     insideLocalTx { implicit session =>
       val cityId: Long =
         sql"""INSERT INTO cities (city, x_cord, y_cord)
@@ -11,7 +11,7 @@ class CityDAO extends DbConnected {
           .updateAndReturnGeneratedKey().apply()
       cityId
     }
-  }
+  }*/
   def read(cityId: Long) : Option[City] = {
     insideReadOnly { implicit session =>
       sql"SELECT * FROM cities WHERE id = ${cityId}".map(rs =>
@@ -32,7 +32,7 @@ class CityDAO extends DbConnected {
         .list.apply()
     }
   }
-  def update(cityToSave: City) : Unit = {
+  /*def update(cityToSave: City) : Unit = {
     insideLocalTx { implicit session =>
       sql"""UPDATE cities SET
                 city=${cityToSave.name},
@@ -46,5 +46,5 @@ class CityDAO extends DbConnected {
     insideLocalTx { implicit session =>
       sql"DELETE FROM t_cities WHERE id = ${cityId}".execute().apply()
     }
-  }
+  }*/
 }
