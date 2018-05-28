@@ -28,7 +28,7 @@ libraryDependencies += "org.scala-graph" %% "graph-dot" % "1.12.1"
 
 /** Зависимости для библиотеки scalikejdbc */
 libraryDependencies ++= Seq(
-  "mysql"             %  "mysql-connector-java"       % "5.1.46",
+  "mysql"             %   "mysql-connector-java"      % "5.1.46",
   "org.scalikejdbc"   %%  "scalikejdbc"               % "3.2.2",
   "org.scalikejdbc"   %%  "scalikejdbc-config"        % "3.2.2"
 )

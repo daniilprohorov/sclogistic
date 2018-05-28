@@ -3,13 +3,13 @@ object Main extends App {
   def main(): Unit =  {
 
   }
+
+  val city_filename = "city_coordinates.txt"
   /** Наверное это все должно хранится в хеш таблице */
   import scala.collection.mutable.HashMap
   import scala.collection.Set
   import scala.io.Source
   import demo._
-
-  val city_filename = "city_coordinates.txt"
 
   /** Подключение базы данных */
   import scalikejdbc.config.DBs
