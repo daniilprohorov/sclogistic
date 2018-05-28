@@ -16,8 +16,11 @@ object Main extends App {
 
   DBs.setup('city_db)
   val cityDao = new CityDAO
+  val cRelationDao = new City_RelationDAO
+  //val createList = cRelationDao.readCityRelations
 
-  cityDao.readAll().foreach(println)
+  val Cities = cityDao.readAll().map(_.id).map(cRelationDao.readCityRelations) // переменная получает список списков связей городов
+  println (Cities)
   DBs.close('city_db) //если что это закрытие базы
   /** */
   val relations_filename = "relations.txt"
@@ -139,4 +142,5 @@ object Main extends App {
   }
   
   printGraphText(initGraph())
+  /** */
 } 
