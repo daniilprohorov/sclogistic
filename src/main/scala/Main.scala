@@ -22,7 +22,9 @@ object Main extends App {
   val CityNames : Map[Long, String] = cityDao.readAll()
     .map( x => Tuple2(x.id.get, x.name))
     .toMap 
-  DBs.close('city_db) /** закрытие базы данных*/
+
+  /** закрытие базы данных*/
+  DBs.close('city_db) 
    
   /** Вычисление расстояний по координатам */
   def getLen(A : List[Double], B : List[Double]): Double = {
