@@ -1,4 +1,4 @@
-package demo
+package Database
 
 case class City(id: Option[Long] = None,
                 name: String,

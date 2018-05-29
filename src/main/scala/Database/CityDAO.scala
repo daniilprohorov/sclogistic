@@ -1,4 +1,4 @@
-package demo
+package Database
 
 import scalikejdbc._
 

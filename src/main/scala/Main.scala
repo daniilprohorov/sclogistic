@@ -3,21 +3,14 @@ object Main extends App {
   def main(): Unit =  {
 
   }
-
-  val city_filename = "city_coordinates.txt"
-  /** Наверное это все должно хранится в хеш таблице */
-  import scala.collection.mutable.HashMap
-  import scala.collection.Set
-  import scala.io.Source
-  import demo._
-
   /** Подключение базы данных */
   import scalikejdbc.config.DBs
+  import Database._
 
   DBs.setup('city_db)
   val cityDao = new CityDAO
   val cRelationDao = new City_RelationDAO
-  /** Получаем словарь */ 
+  /** Получаем словарь (map) */
   val City :  Map[Long, List[Double]] = cityDao.readAll()
     .map( x => Tuple2(x.id.get, List(x.x_cord, x.y_cord)))
     .toMap
@@ -29,7 +22,7 @@ object Main extends App {
   val CityNames : Map[Long, String] = cityDao.readAll()
     .map( x => Tuple2(x.id.get, x.name))
     .toMap 
-  DBs.close('city_db) //если что это закрытие базы
+  DBs.close('city_db) /** закрытие базы данных*/
    
   /** Вычисление расстояний по координатам */
   def getLen(A : List[Double], B : List[Double]): Double = {
@@ -52,10 +45,12 @@ object Main extends App {
   /** Библиотеки Graph  */
   import scalax.collection.Graph
   import scalax.collection.GraphPredef._
-  import scalax.collection.GraphEdge._
+  /**import scalax.collection.GraphEdge._ вроде не используется*/
+
   /** Библиотека подключения графа с весами */
-  //import scalax.collection.edge
-  import scala.collection.Traversable
+
+  /**import scalax.collection.edge вроде не используется*/
+  /**шmport scala.collection.Traversable вроде не используется*/
   import scalax.collection.edge.WUnDiEdge
   import scalax.collection.edge.Implicits._
  
