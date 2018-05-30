@@ -11,15 +11,18 @@ object Main extends App {
   val cityDao = new CityDAO
   val cRelationDao = new City_RelationDAO
   /** Получаем словарь (map) */
-  val City :  Map[Long, List[Double]] = cityDao.readAll()
+  type CityT = Map[Long, List[Double]] 
+  type RelationT = Map[Long, List[Tuple2[Long, Double]]]
+  type CityNamesT = Map[Long, String] 
+  val city : CityT  = cityDao.readAll()
     .map( x => Tuple2(x.id.get, List(x.x_cord, x.y_cord)))
     .toMap
 
-  val Relation : Map[Long, List[Tuple2[Long, Double]]]  = cityDao.readAll()
+  val relation : RelationT   = cityDao.readAll()
     .map(x => Tuple2(x.id.get, cRelationDao.readCityRelations(x.id)))
     .toMap 
 
-  val CityNames : Map[Long, String] = cityDao.readAll()
+  val cityNames : CityNamesT = cityDao.readAll()
     .map( x => Tuple2(x.id.get, x.name))
     .toMap 
 
@@ -57,10 +60,10 @@ object Main extends App {
   import scalax.collection.edge.Implicits._
  
   /** Функция создания графа */   
-  def initGraph(TableCity : Map[Long, List[Double]] = City,
+  def initGraph(TableCity : CityT = city,
             /** TableCity - таблица типа hashMap 
-              * default = City*/
-                TableRelation : Map[Long, List[Tuple2[Long, Double]]] = Relation, 
+              * default = city*/
+                TableRelation : RelationT = relation,
             /** TableRelation - таблица типа hashMap                           
               * c ключом Long, элементом типа List[String]                     
               * default = Relation*/                                           
@@ -90,7 +93,7 @@ object Main extends App {
 
 
   /** Функция вывода графа в удобночитаемом виде */
-  def printGraphText(G : Graph[Long, WUnDiEdge], Name: Map[Long, String] = CityNames) {
+  def printGraphText(G : Graph[Long, WUnDiEdge], Name: CityNamesT = cityNames) {
     /** функция, возвращающая узел графа */
     def n(outer: Long): G.NodeT = G get outer
     /** записываем в edges все ребра */

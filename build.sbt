@@ -32,6 +32,8 @@ libraryDependencies ++= Seq(
   "org.scalikejdbc"   %%  "scalikejdbc"               % "3.2.2",
   "org.scalikejdbc"   %%  "scalikejdbc-config"        % "3.2.2"
 )
+/** чтобы не было лишних ошибок и компиляция проходила быстрее */
+libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.1.3"
 // Here, `libraryDependencies` is a set of dependencies, and by using `+=`,
 // we're adding the cats dependency to the set of dependencies that sbt will go
 // and fetch when it starts up.
