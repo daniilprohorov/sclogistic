@@ -20,20 +20,23 @@ version := "0.1"
 // mostly only necessary if you intend to publish your library's binaries on a
 // place like Sonatype or Bintray.
 
-
 // Want to use a published library in your project?
 // You can define other libraries as dependencies in your build like this:
 libraryDependencies += "org.scala-graph" %% "graph-core" % "1.12.5"
-libraryDependencies += "org.scala-graph" %% "graph-dot" % "1.12.1"
+libraryDependencies += "org.scala-graph" %% "graph-dot"  % "1.12.1"
+libraryDependencies += "org.scalafx"     %% "scalafx"    % "8.0.144-R12"
 
-/** Зависимости для библиотеки scalikejdbc */
+  /** Зависимости для библиотеки scalikejdbc */
 libraryDependencies ++= Seq(
   "mysql"             %   "mysql-connector-java"      % "5.1.46",
   "org.scalikejdbc"   %%  "scalikejdbc"               % "3.2.2",
   "org.scalikejdbc"   %%  "scalikejdbc-config"        % "3.2.2"
 )
 /** чтобы не было лишних ошибок и компиляция проходила быстрее */
-libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.1.3"
+//libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.1.3"
+
+scalacOptions ++= Seq("-unchecked", "-deprecation", "-Xcheckinit", "-encoding", "utf8", "-feature")
+
 // Here, `libraryDependencies` is a set of dependencies, and by using `+=`,
 // we're adding the cats dependency to the set of dependencies that sbt will go
 // and fetch when it starts up.

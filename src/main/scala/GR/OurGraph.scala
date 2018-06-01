@@ -1,58 +1,22 @@
 package GR
 
 class OurGraph{
-
-  type CityT = Map[Long, List[Double]] 
-  type RelationT = Map[Long, List[Tuple2[Long, Double]]]
-  type NamesT = Map[Long, String] 
   /** Библиотеки Graph  */
+  type CityT = Map[Long, List[Double]]
+  type RelationT = Map[Long, List[Tuple2[Long, Double]]]
+  type NamesT = Map[Long, String]
 
   import scalax.collection.Graph
   import scalax.collection.GraphPredef._
   import scalax.collection.edge.WUnDiEdge
   import scalax.collection.edge.Implicits._
+  import Database.DatabaseApp
   
-
-  
-
   /** Получаем словарь (map) */
-     
-  class BD(name : Symbol = 'city_db){
-    import scalikejdbc.config.DBs
-    import Database._
-    val cityDao = new CityDAO
-    val cRelationDao = new City_RelationDAO
 
-    def getCity(): CityT = {
-      DBs.setup(name)
-      cityDao.readAll()
-        .map( x => Tuple2(x.id.get, List(x.x_cord, x.y_cord)))
-        .toMap
-    }
+  val Temp_DataBase = new DatabaseApp
+  val DataBase = Temp_DataBase.DataBase
 
-    def getRelation() : RelationT = {
-      DBs.setup(name)
-      cityDao.readAll()
-        .map(x => Tuple2(x.id.get, cRelationDao.readCityRelations(x.id)))
-        .toMap
-    }
-
-    def getNames() : NamesT = {
-      DBs.setup(name)
-      cityDao.readAll()
-        .map( x => Tuple2(x.id.get, x.name))
-        .toMap   
-    }
-
-      DBs.close(name) 
-   }
-  object DataBase { 
-    val DataBaseVal = new BD 
-    def city() : CityT  = DataBaseVal.getCity()
-    def relation() : RelationT = DataBaseVal.getRelation()  
-    def names() : NamesT = DataBaseVal.getNames()
-  }
- 
   val city = DataBase.city()
   val relation = DataBase.relation()
   val names = DataBase.names()
