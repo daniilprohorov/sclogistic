@@ -13,9 +13,11 @@ import scalafx.geometry.Pos
 
 class CityBox {
 
-  def getBoxes (name: String) =
+  def getBoxes (name: String, x : Double, y : Double) =
   new VBox {
-    padding = Insets(20)
+    //padding = Insets(40)
+    layoutX = x
+    layoutY = y
     alignment = Pos.Center
     children = Seq(
       new Text {
