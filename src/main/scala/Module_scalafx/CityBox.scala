@@ -15,9 +15,9 @@ class CityBox {
 
   def getBoxes (name: String, x : Double, y : Double) =
   new VBox {
-    //padding = Insets(40)
     layoutX = x
     layoutY = y
+    minWidth = 70
     alignment = Pos.Center
     children = Seq(
       new Text {

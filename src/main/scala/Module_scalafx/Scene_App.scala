@@ -19,7 +19,7 @@ object Scene_App extends JFXApp{
   val relation = DataBase.relation()
   val names = DataBase.names()
   val CityBoxApp = new CityBox
-  val tmp = 200
+  val dispersion = 180
 
   stage = new PrimaryStage {
     width = 800
@@ -30,7 +30,7 @@ object Scene_App extends JFXApp{
       fill = Black
       content = new Pane {
         padding = Insets(80)
-        children = city.keySet.map(x => CityBoxApp.getBoxes(names(x), -1 * (city(1)(1) - city(x)(1)) * tmp + 350, (city(1)(0) - city(x)(0)) * tmp + 350)).toSeq
+        children = city.keySet.map(x => CityBoxApp.getBoxes(names(x), (city(x)(1) - city(1)(1)) * dispersion + 500, -1 * (city(x)(0) - city(1)(0)) * dispersion * 4 + 400)).toSeq
       }
     }
   }
