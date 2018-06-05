@@ -11,8 +11,11 @@ class OurGraph{
   import scalax.collection.edge.WUnDiEdge
   import scalax.collection.edge.Implicits._
   import Database.DatabaseApp
+  import scala.language.postfixOps
   
   /** Получаем словарь (map) */
+  
+  type CityGraphT = Graph[Long, WUnDiEdge]
 
   val Temp_DataBase = new DatabaseApp
   val DataBase = Temp_DataBase.DataBase
@@ -76,7 +79,7 @@ class OurGraph{
 
 
   /** Функция вывода графа в удобночитаемом виде */
-  def printGraphText(G : Graph[Long, WUnDiEdge] = initGraph(), Name: NamesT  = names) {
+  def printGraphText(G : CityGraphT = initGraph(), Name: NamesT  = names) {
     /** функция, возвращающая узел графа */
     def n(outer: Long): G.NodeT = G get outer
     /** записываем в edges все ребра */
@@ -90,7 +93,65 @@ class OurGraph{
       val w_edge = temp_edge get 
       val weight = w_edge.weight
       count += 1
-      print(f"$count. ${Name(edge._1)}%-20s ~ ${Name(edge._2)}%-20s Weight = $weight \n")
+      print(f"$count. ${Name(edge._1)+" = " + edge._1.toString}%-20s ~ ${Name(edge._2)+" = " + edge._2.toString}%-20s Weight = $weight \n")
     }
+  }
+  val inf = 9999999
+  case class DijkstraNode(id : Long, weight : Int = inf, way : List[Long] = List(0))
+  type DijkstraGraphT = Graph[DijkstraNode, WUnDiEdge]
+  def dr(Start : Long, G : CityGraphT) : DijkstraGraphT = {
+
+    def n(outer: Long): G.NodeT = G get outer
+
+    def takeWeight(edge : G.EdgeT) : Double = {
+      /** функция, возвращающая узел графа */
+      def n(outer: Long): G.NodeT = G get outer
+
+      val temp_edge = n(edge._1) pathTo n(edge._2)
+      /** Получаем вес этого ребра */
+      val w_edge  = temp_edge get 
+      val weight = w_edge.weight
+      weight
+    }
+    /** записываем в edges все ребра */
+    val edges = G.edges.toList 
+    val dijkstraGraph = for( edge <- edges ) yield 
+      (DijkstraNode(edge._1)  ~ DijkstraNode(edge._2) % takeWeight(edge)) 
+    /** Создаем начальный граф */
+    val g = Graph.from(
+      edges.flatMap(x => List(DijkstraNode(x._1), DijkstraNode(x._2))), 
+      dijkstraGraph) 
+
+    println((g get DijkstraNode(Start)).diSuccessors mkString " \n")
+
+    def _rec(node : g.NodeT, rg : DijkstraGraphT = g) : DijkstraGraphT = {
+      import scala.collection.mutable.Queue
+      def n(outer: DijkstraNode): rg.NodeT = rg get outer
+      def takeWeight(edge : rg.EdgeT) : Double = {
+      /** функция, возвращающая узел графа */
+      def n(outer: DijkstraNode): rg.NodeT = rg get outer
+      val temp_edge = n(edge._1) pathTo n(edge._2)
+      /** Получаем вес этого ребра */
+      val w_edge  = temp_edge get 
+      val weight = w_edge.weight
+      weight
+      }
+
+      if(node.weight ==  inf) {
+          val q = Queue(node.diSuccessors) 
+          for(second_node <- q){
+              val weight =  takeWeight(n(node) pathTo n(second_node))
+              if(weight + node.weight < second_node.weight){
+                  second_node.weight = weight + node.weight  
+                  /**добавить путь */
+              }
+          }
+          if(!q.isEmpty){
+              _rec(q.decueue, rg)
+          }
+      }
+      rg 
+    }
+    print(_rec(DijkstraNode(Start)))
   }
 }
