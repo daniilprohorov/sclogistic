@@ -104,16 +104,7 @@ class OurGraph{
 
     def n(outer: Long): G.NodeT = G get outer
 
-    def takeWeight(edge : G.EdgeT) : Double = {
-      /** функция, возвращающая узел графа */
-      def n(outer: Long): G.NodeT = G get outer
-
-      val temp_edge = n(edge._1) pathTo n(edge._2)
-      /** Получаем вес этого ребра */
-      val w_edge  = temp_edge get 
-      val weight = w_edge.weight
-      weight
-    }
+    def takeWeight(edge : G.EdgeT) : Double = edge.weight
     /** записываем в edges все ребра */
     val edges = G.edges.toList 
     val dijkstraGraph = for( edge <- edges ) yield 
