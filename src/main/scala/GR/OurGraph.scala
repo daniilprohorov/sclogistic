@@ -97,8 +97,9 @@ class OurGraph{
     }
   }
   val inf = 9999999
-  case class DijkstraNode(id : Long, weight : Int = inf, way : List[Long] = List(0))
+  case class DijkstraNode(val id : Long,var mark : Boolean = false,  var weight : Double = inf, var way : List[Long] = List(0))
   type DijkstraGraphT = Graph[DijkstraNode, WUnDiEdge]
+
   def dr(Start : Long, G : CityGraphT) : DijkstraGraphT = {
 
     def n(outer: Long): G.NodeT = G get outer
@@ -118,40 +119,48 @@ class OurGraph{
     val dijkstraGraph = for( edge <- edges ) yield 
       (DijkstraNode(edge._1)  ~ DijkstraNode(edge._2) % takeWeight(edge)) 
     /** Создаем начальный граф */
-    val g = Graph.from(
+    val Lg = Graph.from(
       edges.flatMap(x => List(DijkstraNode(x._1), DijkstraNode(x._2))), 
       dijkstraGraph) 
+    for(node <- Lg.nodes)if(node.id == Start){node.weight = 0; node.mark = false}
 
-    println((g get DijkstraNode(Start)).diSuccessors mkString " \n")
-
-    def _rec(node : g.NodeT, rg : DijkstraGraphT = g) : DijkstraGraphT = {
+    println(Lg.edges mkString "\n")
+    println(Lg get DijkstraNode(Start,false,0.0,List(0)))
+    println(Lg get DijkstraNode(Start))
+    def _rec(node : Lg.NodeT, rg : DijkstraGraphT = Lg, back : Boolean = true) : DijkstraGraphT = {
       import scala.collection.mutable.Queue
       def n(outer: DijkstraNode): rg.NodeT = rg get outer
-      def takeWeight(edge : rg.EdgeT) : Double = {
-      /** функция, возвращающая узел графа */
+
+      def takeWeight(A : DijkstraNode, B : DijkstraNode) : Double = {
       def n(outer: DijkstraNode): rg.NodeT = rg get outer
-      val temp_edge = n(edge._1) pathTo n(edge._2)
-      /** Получаем вес этого ребра */
-      val w_edge  = temp_edge get 
-      val weight = w_edge.weight
-      weight
+        val temp_edge = n(A) pathTo n(B)
+        /** Получаем вес этого ребра */
+        val w_edge  = temp_edge get 
+        val weight = w_edge.weight
+        weight 
       }
 
-      if(node.weight ==  inf) {
-          val q = Queue(node.diSuccessors) 
+      if(node.mark == false) {
+          node.mark = true
+          val q = Queue(node.diSuccessors.toList : _*) 
           for(second_node <- q){
-              val weight =  takeWeight(n(node) pathTo n(second_node))
+
+              val weight =  takeWeight(node, second_node)
               if(weight + node.weight < second_node.weight){
                   second_node.weight = weight + node.weight  
-                  /**добавить путь */
               }
           }
-          if(!q.isEmpty){
-              _rec(q.decueue, rg)
+          while(q.length >= 1){
+            val nd = q.dequeue
+            if(nd.mark == false){
+              _rec(nd, rg)
+            }
           }
       }
       rg 
     }
-    print(_rec(DijkstraNode(Start)))
+    val out = _rec((Lg get DijkstraNode(Start,false, 0.0)), Lg)
+    print(out)
+    out 
   }
 }
