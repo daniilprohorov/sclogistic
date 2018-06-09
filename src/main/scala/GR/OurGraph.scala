@@ -6,7 +6,7 @@ class OurGraph{
   type RelationT = Map[Long, List[Tuple2[Long, Double]]]
   type NamesT = Map[Long, String]
 
-  import scalax.collection.Graph
+  import scalax.collection.mutable.Graph
   import scalax.collection.GraphPredef._
   import scalax.collection.edge.WUnDiEdge
   import scalax.collection.edge.Implicits._
@@ -97,7 +97,7 @@ class OurGraph{
     }
   }
   val inf = 9999999
-  case class DijkstraNode(val id : Long,var mark : Boolean = false,  var weight : Double = inf, var way : List[Long] = List(0))
+  case class DijkstraNode(val id : Long,var mark : Boolean = false,  var weight : Double = inf, var way : List[Long] = List())
   type DijkstraGraphT = Graph[DijkstraNode, WUnDiEdge]
 
   def dr(Start : Long, G : CityGraphT) : DijkstraGraphT = {
@@ -107,23 +107,35 @@ class OurGraph{
     def takeWeight(edge : G.EdgeT) : Double = edge.weight
     /** записываем в edges все ребра */
     val edges = G.edges.toList 
-    val dijkstraGraph = for( edge <- edges ) yield 
-      (DijkstraNode(edge._1)  ~ DijkstraNode(edge._2) % takeWeight(edge)) 
+    val dijkstraGraph = for( edge <- edges ) yield
+      if(edge._1 == Start){
+        (DijkstraNode(Start, weight = 0) ~ DijkstraNode(edge._2) % takeWeight(edge)) 
+      }
+      else if(edge._2 == Start){
+        (DijkstraNode(edge._1) ~ DijkstraNode(Start, weight = 0) % takeWeight(edge)) 
+      }
+      else {
+        (DijkstraNode(edge._1) ~ DijkstraNode(edge._2) % takeWeight(edge)) 
+      }
+
+    val nodesG = G.nodes.toList
     /** Создаем начальный граф */
-    val Lg = Graph.from(
-      edges.flatMap(x => List(DijkstraNode(x._1), DijkstraNode(x._2))), 
-      dijkstraGraph) 
-    for(node <- Lg.nodes)if(node.id == Start){node.weight = 0; node.mark = false}
+    val nodesGraph = nodesG.map(x => if(x == Start)DijkstraNode(Start, weight = 0) else DijkstraNode(x)) 
+
+    val Lg = Graph.from(nodesGraph, dijkstraGraph) 
+    //for(node <- Lg.nodes)if(node.id == Start){node.weight = 0}
 
     println(Lg.edges mkString "\n")
-    println(Lg get DijkstraNode(Start,false,0.0,List(0)))
-    println(Lg get DijkstraNode(Start))
-    def _rec(node : Lg.NodeT, rg : DijkstraGraphT = Lg, back : Boolean = true) : DijkstraGraphT = {
+    println(Lg.nodes mkString "\n")
+    println("\n\nlol\n\n")
+    def nlg(outer: DijkstraNode): Lg.NodeT = Lg get outer
+    def _rec(elem : DijkstraNode, rg : DijkstraGraphT = Lg, listNodes : Set[DijkstraNode] = Set()) : DijkstraGraphT = {
       import scala.collection.mutable.Queue
       def n(outer: DijkstraNode): rg.NodeT = rg get outer
+      val node = n(elem)
 
       def takeWeight(A : DijkstraNode, B : DijkstraNode) : Double = {
-      def n(outer: DijkstraNode): rg.NodeT = rg get outer
+      //def n(outer: DijkstraNode): rg.NodeT = rg get outer
         val temp_edge = n(A) pathTo n(B)
         /** Получаем вес этого ребра */
         val w_edge  = temp_edge get 
@@ -132,26 +144,42 @@ class OurGraph{
       }
 
       if(node.mark == false) {
-          node.mark = true
-          val q = Queue(node.diSuccessors.toList : _*) 
-          for(second_node <- q){
-
-              val weight =  takeWeight(node, second_node)
+          
+          println("\n\n LOL \n\n")
+          val list_nodes = node.diSuccessors.filter(_.mark == false)
+          
+          println(list_nodes mkString "\n")
+          for(second_node <- list_nodes){
+              val weight =  takeWeight(elem, second_node)
               if(weight + node.weight < second_node.weight){
                   second_node.weight = weight + node.weight  
               }
+          } 
+          
+          println(list_nodes)
+          node.mark = true
+          val listWithNodes : Set[DijkstraNode] = 
+              listNodes.filter(_.mark == false) ++ list_nodes.map(_.toOuter)
+          println("\n LIST WITH NODES :\n")
+          println(listWithNodes mkString "\n") 
+          if(listWithNodes.isEmpty){
+            return rg
           }
-          while(q.length >= 1){
-            val nd = q.dequeue
-            if(nd.mark == false){
-              _rec(nd, rg)
-            }
-          }
+          val nodeNext = listWithNodes.minBy(_.weight)
+          println("\n NODE NEXT \n")
+          
+          println(nodeNext)
+          println(" NODE MARK = "+node.mark)
+          val h = Graph.empty[DijkstraNode,WUnDiEdge] ++ rg
+          _rec(nodeNext, h, listWithNodes)
+
       }
+      else {
       rg 
+      }
     }
-    val out = _rec((Lg get DijkstraNode(Start,false, 0.0)), Lg)
-    print(out)
-    out 
+    val out = _rec(DijkstraNode(Start, weight = 0.0D), Lg, Set())
+    print(out mkString "\n")
+    out
   }
 }
