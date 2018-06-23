@@ -87,13 +87,10 @@ class OurGraph{
     /** Cчетчик */
     var count = 0
     for(edge <- edges){
-      /** Берем любое ребро из узла 1 в узел 2 */
-      val temp_edge = n(edge._1) pathTo n(edge._2)
-      /** Получаем вес этого ребра */
-      val w_edge = temp_edge get 
-      val weight = w_edge.weight
+
+      val weight = edge.weight
       count += 1
-      print(f"$count. ${Name(edge._1)+" = " + edge._1.toString}%-20s ~ ${Name(edge._2)+" = " + edge._2.toString}%-20s Weight = $weight \n")
+      printf(f"$count. ${Name(edge._1)+" = " + edge._1.toString}%-20s ~ ${Name(edge._2)+" = " + edge._2.toString}%-20s Weight = $weight \n")
     }
   }
   val inf = 9999999
@@ -101,13 +98,11 @@ class OurGraph{
   type DijkstraGraphT = Graph[DijkstraNode, WUnDiEdge]
 
   def dr(Start : Long, G : CityGraphT) : DijkstraGraphT = {
-    print(G)
     def n(outer: Long): G.NodeT = G get outer
 
     def takeWeight(edge : G.EdgeT) : Double = edge.weight
     /** записываем в edges все ребра */
     val edges = G.edges.toList 
-    println(edges mkString "\n")
     val dijkstraGraph = for( edge <- edges ) yield
       if(edge._1 == Start){
         (DijkstraNode(Start, weight = 0) ~ DijkstraNode(edge._2) % takeWeight(edge)) 
@@ -126,9 +121,6 @@ class OurGraph{
     val Lg = Graph.from(nodesGraph, dijkstraGraph) 
     //for(node <- Lg.nodes)if(node.id == Start){node.weight = 0}
 
-    println(Lg.edges mkString "\n")
-    println(Lg.nodes mkString "\n")
-    println("\n\nlol\n\n")
     def nlg(outer: DijkstraNode): Lg.NodeT = Lg get outer
 
     def _rec(elem : DijkstraNode, rg : DijkstraGraphT = Lg, listEdges : Set[WUnDiEdge[DijkstraNode]] = Set()) : DijkstraGraphT = {
@@ -138,7 +130,6 @@ class OurGraph{
       val node = n(elem)
 
       def takeWeight(A : DijkstraNode, B : DijkstraNode) : Double = {
-      //def n(outer: DijkstraNode): rg.NodeT = rg get outer
         val temp_edge = n(A) pathTo n(B)
         /** Получаем вес этого ребра */
         val w_edge  = temp_edge get 
@@ -147,41 +138,28 @@ class OurGraph{
       }
 
       if(node.mark == false) {
-          println("\n\n LOL \n\n")
           val list_nodes = node.diSuccessors.filter(_.mark == false)
 
-          println(list_nodes mkString "\n")
           for(second_node <- list_nodes){
               val weight =  takeWeight(elem, second_node)
-              println(second_node + " WEIGHT = " + weight)
               if(weight + node.weight < second_node.weight){
                   second_node.weight = weight + node.weight  
               }
           } 
 
-          println(list_nodes)
-          // val listWithNodes : Set[DijkstraNode] = 
-          //    listNodes.filter(_.mark == false) ++ list_nodes.map(_.toOuter)
           node.mark = true
           val listWithEdges : Set[WUnDiEdge[DijkstraNode]] = (listEdges ++ node.outgoing.map(_.toOuter)).filter(x => x._1.mark == false || x._2.mark  == false)
-          println("\n LIST WITH Edges:\n")
-          println(listWithEdges mkString "\n") 
           if(listWithEdges.isEmpty){
             return rg
           }
           val edgeNext = listWithEdges.minBy(_.weight)
 
-          println("\n EDGE NEXT \n")
-          println(edgeNext)
 
           val (nodeNext, nodeLast) = edgeNext match {
             case x if x._1.mark == true => Tuple2(x._2, x._1)
             case x if x._2.mark == true => Tuple2(x._1, x._2)
           }
-          println("\n NODE NEXT \n")
-          println(nodeNext)
           rg.nodes.filter(_.id == nodeNext.id).map(x => x.way = nodeLast.id :: nodeLast.way) 
-          println(" NODE MARK = "+node.mark)
           val h = Graph.empty[DijkstraNode,WUnDiEdge] ++ rg
           _rec(nodeNext, h, listWithEdges)
 
@@ -193,7 +171,18 @@ class OurGraph{
 
 
     val out = _rec(DijkstraNode(Start, weight = 0.0D), Lg)
-    print(out mkString "\n")
-    out
+    for(node <- out.nodes) node.way = node.way.reverse
+    val out_reverse = Graph.empty[DijkstraNode,WUnDiEdge] ++ out 
+    out_reverse
   }
+
+  def best_way(A : Long, B : Long, G : CityGraphT, 
+    func_min_way : (Long, CityGraphT) => DijkstraGraphT = dr ) : List[Long] =
+    {
+      val g = dr(A, G)
+      val way = g.nodes.filter(_.id == B).head.way
+      way
+
+  }
+
 }
