@@ -60,7 +60,6 @@ class OurGraph{
                 ): Graph[Long, WUnDiEdge] = {                                  
             /** Функция возвращает граф c узлами типа Long                     
               * и ребрами, типа Weight UnDirect Edge */                        
-                                                  
     /** Список ключей городов */
     val keyCity = TableCity.keySet.toList
     /** цикл по элементам keyTable */                                                
@@ -74,6 +73,7 @@ class OurGraph{
     /** Создаем граф из элементов таблицы с                                          
       * вычесленными весами */
     val G = Graph.from(keyCity, flatEdges)
+    print(G.nodes)
     G
   } 
 
@@ -173,16 +173,40 @@ class OurGraph{
     val out = _rec(DijkstraNode(Start, weight = 0.0D), Lg)
     for(node <- out.nodes) node.way = node.way.reverse
     val out_reverse = Graph.empty[DijkstraNode,WUnDiEdge] ++ out 
+    print(out_reverse mkString "\n")
     out_reverse
   }
 
-  def best_way(A : Long, B : Long, G : CityGraphT, 
-    func_min_way : (Long, CityGraphT) => DijkstraGraphT = dr ) : List[Long] =
+  def k(A : Long, B : Long, R : RelationT = relation) : Double = {
+    val K = R(A).filter(_._1 == B)(0)
+    1 - (K._2/10)
+  } 
+  def best_way_dijkstra(A : Long, B : Long, G : CityGraphT, R : RelationT  = relation, k : ((Long, Long, RelationT) => Double) = k,
+    f_min_way : (Long, CityGraphT) => DijkstraGraphT = dr ) : List[Long] =
     {
-      val g = dr(A, G)
+      def n(outer: Long): G.NodeT = G get outer
+      def takeWeight(A : Long, B : Long) : Double = {
+        val temp_edge = n(A) pathTo n(B)
+        /** Получаем вес этого ребра */
+        val w_edge  = temp_edge get 
+        val weight = w_edge.weight
+        weight 
+      }
+     val lst =  for(edge <- G.edges) yield {
+        val K = k(edge._1, edge._2, R)
+        val weight = edge.weight * K
+        (edge._1.toOuter ~ edge._2.toOuter % weight)
+        //print("\n\n Edge" + edge._1 + "   " + edge._2)
+      }
+
+      val graphK = Graph.from(G.nodes.map(_.toOuter), lst) 
+      print(graphK) 
+       
+      val g = f_min_way(A, graphK)
       val way = g.nodes.filter(_.id == B).head.way
       way
 
-  }
+ }
+   
 
 }
