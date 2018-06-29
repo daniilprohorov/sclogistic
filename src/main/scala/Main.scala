@@ -6,5 +6,12 @@ object Main extends App {
   val g = G.initGraph()
   G.printGraphText()
   G.dr(1, g)
-  println("\n\n" + G.best_way_dijkstra(1, 13, g))
+  val way = G.best_way_dijkstra(1, 13, g)._2
+  var graph = G.best_way_dijkstra(1, 13, g)._1 
+  print("\n\n")
+  G.printGraphText()  
+  print("\n\n")
+  G.printGraphText(graph)  
+  println(way) 
+  G.loop(g)
 } 

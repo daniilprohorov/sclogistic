@@ -86,11 +86,12 @@ class OurGraph{
     val edges = G.edges.toList
     /** Cчетчик */
     var count = 0
+    
     for(edge <- edges){
 
       val weight = edge.weight
       count += 1
-      printf(f"$count. ${Name(edge._1)+" = " + edge._1.toString}%-20s ~ ${Name(edge._2)+" = " + edge._2.toString}%-20s Weight = $weight \n")
+      printf(f"\n $count. ${Name(edge._1)+" = " + edge._1.toString}%-20s ~ ${Name(edge._2)+" = " + edge._2.toString}%-20s Weight = $weight \n")
     }
   }
   val inf = 9999999
@@ -173,7 +174,6 @@ class OurGraph{
     val out = _rec(DijkstraNode(Start, weight = 0.0D), Lg)
     for(node <- out.nodes) node.way = node.way.reverse
     val out_reverse = Graph.empty[DijkstraNode,WUnDiEdge] ++ out 
-    print(out_reverse mkString "\n")
     out_reverse
   }
 
@@ -182,8 +182,7 @@ class OurGraph{
     1 - (K._2/10)
   } 
   def best_way_dijkstra(A : Long, B : Long, G : CityGraphT, R : RelationT  = relation, k : ((Long, Long, RelationT) => Double) = k,
-    f_min_way : (Long, CityGraphT) => DijkstraGraphT = dr ) : List[Long] =
-    {
+    f_min_way : (Long, CityGraphT) => DijkstraGraphT = dr ): Tuple2[CityGraphT, List[Long]] = {
       def n(outer: Long): G.NodeT = G get outer
       def takeWeight(A : Long, B : Long) : Double = {
         val temp_edge = n(A) pathTo n(B)
@@ -196,17 +195,30 @@ class OurGraph{
         val K = k(edge._1, edge._2, R)
         val weight = edge.weight * K
         (edge._1.toOuter ~ edge._2.toOuter % weight)
-        //print("\n\n Edge" + edge._1 + "   " + edge._2)
       }
 
       val graphK = Graph.from(G.nodes.map(_.toOuter), lst) 
-      print(graphK) 
        
       val g = f_min_way(A, graphK)
       val way = g.nodes.filter(_.id == B).head.way
-      way
+      
+      (graphK, way) 
 
  }
-   
+ def loop(G : CityGraphT, name : NamesT = names) : Int = {
+    print("Введите id городов: ") 
+    val str = scala.io.StdIn.readLine().split(" ")
+    if(str.length == 2){
+      val way = best_way_dijkstra(str(0).toLong, str(1).toLong, G)._2
+      val out_str = way.map(name(_)) mkString " => "
+      println(out_str + " => " + name(str(1).toLong))
+      loop(G) 
+    }
+
+    else {
+     1 
+    } 
+  }  
 
 }
+
