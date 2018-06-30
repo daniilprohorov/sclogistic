@@ -25,7 +25,7 @@ class CityBox {
         style = "-fx-font-size: 12pt"
         fill = new LinearGradient(
           endX = 0,
-          stops = Stops(PaleGreen, SeaGreen)
+          stops = Stops(White, Aqua)
         )
       },
       new RadioButton {

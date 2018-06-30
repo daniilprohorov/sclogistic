@@ -20,8 +20,15 @@ object Scene_App extends JFXApp{
   val names = DataBase.names()
   val CityBoxApp = new CityBox
   val dispersion = 180
-
-  stage = new PrimaryStage {
+  val startCity = (city(1)(1), city(1)(0))
+  /** Long, Map[Long, List[Double, Double]], Int, Tuple2[Double, Double] => Tuple2[Double, Double] */
+  def getXY(id : Long, 
+      city: Map[Long, List[Double]] = city, 
+      dispersion : Int = dispersion, 
+      startCity : Tuple2[Double, Double] = startCity) : Tuple2[Double, Double] = {
+    Tuple2(((city(id)(1) - startCity._1) * dispersion + 500).toDouble, ( -1 * (city(id)(0) - startCity._2) * dispersion * 4 + 400).toDouble)
+  }
+    stage = new PrimaryStage {
     width = 800
     height = 800
     centerOnScreen
@@ -30,7 +37,7 @@ object Scene_App extends JFXApp{
       fill = Black
       content = new Pane {
         padding = Insets(80)
-        children = city.keySet.map(x => CityBoxApp.getBoxes(names(x), (city(x)(1) - city(1)(1)) * dispersion + 500, -1 * (city(x)(0) - city(1)(0)) * dispersion * 4 + 400)).toSeq
+        children = city.keySet.map(x => CityBoxApp.getBoxes(names(x), getXY(x)._1, getXY(x)._2)).toSeq
       }
     }
   }
